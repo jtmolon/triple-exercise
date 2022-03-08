@@ -1,0 +1,38 @@
+version: '3.4'
+
+volumes:
+  local_postgres_data: {}
+
+services:
+  api:
+    build:
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "18000:8000"
+    environment:
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_EMAIL=admin@admin.com
+      - DJANGO_SUPERUSER_PASSWORD=admin
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./:/app
+
+  postgres:
+    image: postgres:13
+    command: [ "postgres", "-c", "log_statement=all", "-c", "log_destination=stderr" ]
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=database
+    ports:
+      - "15432:5432"
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: psql postgres://user:password@localhost/database -c 'select 1;'
+      interval: 10s
+      timeout: 30s
+      retries: 5
