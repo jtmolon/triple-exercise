@@ -47,6 +47,20 @@ def test_bank_program_eligibility(rest_client):
     assert result["name"] == data["name"]
     program = program_models.Program.objects.get(name=program_name)
 
+    # Create program eligibility
+    url = reverse("programs-eligibility-list")
+    data = dict(
+        program=program_name,
+        country="ES",
+        bank=bank_name,
+        currency="EUR",
+    )
+    assert not program_models.ProgramEligibility.objects.filter(**data).exists()
+    response = rest_client.post(url, data)
+    assert response.status_code == status.HTTP_201_CREATED
+    result = response.data
+    assert result["program"] == program_name
+
     # Check eligibility
     url = reverse("transactions-list")
     data = {
@@ -59,3 +73,55 @@ def test_bank_program_eligibility(rest_client):
     assert response.status_code == status.HTTP_201_CREATED
     result = response.data
     assert result["is_eligible"] is True
+
+    # Check eligibility - not applicable in country
+    url = reverse("transactions-list")
+    data = {
+        "country": "PT",
+        "currency": "EUR",
+        "program": program_name,
+        "bank": bank_name,
+    }
+    response = rest_client.post(url, data)
+    assert response.status_code == status.HTTP_201_CREATED
+    result = response.data
+    assert result["is_eligible"] is False
+
+    # Check eligibility - not applicable in currency
+    url = reverse("transactions-list")
+    data = {
+        "country": "ES",
+        "currency": "USD",
+        "program": program_name,
+        "bank": bank_name,
+    }
+    response = rest_client.post(url, data)
+    assert response.status_code == status.HTTP_201_CREATED
+    result = response.data
+    assert result["is_eligible"] is False
+
+    # Check eligibility - not applicable in program
+    url = reverse("transactions-list")
+    data = {
+        "country": "ES",
+        "currency": "EUR",
+        "program": "program 2",
+        "bank": bank_name,
+    }
+    response = rest_client.post(url, data)
+    assert response.status_code == status.HTTP_201_CREATED
+    result = response.data
+    assert result["is_eligible"] is False
+
+    # Check eligibility - not applicable in bank
+    url = reverse("transactions-list")
+    data = {
+        "country": "ES",
+        "currency": "EUR",
+        "program": program_name,
+        "bank": "bank 2",
+    }
+    response = rest_client.post(url, data)
+    assert response.status_code == status.HTTP_201_CREATED
+    result = response.data
+    assert result["is_eligible"] is False

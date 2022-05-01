@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'banks',
     'programs',
+    'transactions',
     'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',

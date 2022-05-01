@@ -9,6 +9,17 @@ class ProgramSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "currency", "return_percentage",)
 
 
+class ProgramEligibilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ProgramEligibility
+        fields = ("id", "program", "bank", "country", "currency")
+
+
 class ProgramViewSet(viewsets.ModelViewSet,):
     queryset = models.Program.objects.all()
     serializer_class = ProgramSerializer
+
+
+class ProgramEligibilityViewSet(viewsets.ModelViewSet,):
+    queryset = models.ProgramEligibility.objects.all()
+    serializer_class = ProgramEligibilitySerializer
