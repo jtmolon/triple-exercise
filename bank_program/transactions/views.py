@@ -22,12 +22,16 @@ class TransactionSerializer(serializers.ModelSerializer):
         )
 
     def get_is_eligible(self, obj):
-        return ProgramEligibility.objects.filter(
-            country=obj.country,
-            bank=obj.bank,
-            program__currency=obj.currency,
-            program__name=obj.program,
-        ).exists()
+        return (
+            obj.country.currency.id == obj.currency.id and
+            obj.bank.countries.contains(obj.country) and
+            ProgramEligibility.objects.filter(
+                country=obj.country,
+                bank=obj.bank.name,
+                program__currency=obj.currency,
+                program=obj.program,
+            ).exists()
+        )
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
