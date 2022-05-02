@@ -25,8 +25,8 @@ class TransactionSerializer(serializers.ModelSerializer):
         return ProgramEligibility.objects.filter(
             country=obj.country,
             bank=obj.bank,
-            currency=obj.currency,
-            program=obj.program,
+            program__currency=obj.currency,
+            program__name=obj.program,
         ).exists()
 
 

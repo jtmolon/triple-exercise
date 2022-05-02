@@ -50,16 +50,15 @@ def test_bank_program_eligibility(rest_client):
     # Create program eligibility
     url = reverse("programs-eligibility-list")
     data = dict(
-        program=program_name,
+        program=program.id,
         country="ES",
         bank=bank_name,
-        currency="EUR",
     )
     assert not program_models.ProgramEligibility.objects.filter(**data).exists()
     response = rest_client.post(url, data)
     assert response.status_code == status.HTTP_201_CREATED
     result = response.data
-    assert result["program"] == program_name
+    assert result["program"] == program.id
 
     # Check eligibility
     url = reverse("transactions-list")

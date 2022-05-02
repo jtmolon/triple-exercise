@@ -1,3 +1,4 @@
 createsuperuser
 __pycache__/
 venv
+bank_program/local_settings.py

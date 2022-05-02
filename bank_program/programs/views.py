@@ -12,7 +12,7 @@ class ProgramSerializer(serializers.ModelSerializer):
 class ProgramEligibilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ProgramEligibility
-        fields = ("id", "program", "bank", "country", "currency")
+        fields = ("id", "program", "bank", "country")
 
 
 class ProgramViewSet(viewsets.ModelViewSet,):

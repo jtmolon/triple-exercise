@@ -12,7 +12,6 @@ class Program(models.Model):
 
 class ProgramEligibility(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    program = models.TextField()
+    program = models.ForeignKey(Program, on_delete=models.CASCADE)
     bank = models.TextField()
     country = models.TextField()
-    currency = models.TextField(max_length=3)
