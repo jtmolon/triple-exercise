@@ -7,6 +7,7 @@ from rest_framework.test import APIClient
 from banks import models as bank_models
 from general import models as general_models
 from programs import models as program_models
+from transactions import models as transaction_models
 
 pytestmark = pytest.mark.django_db
 
@@ -194,3 +195,35 @@ def test_bank_program_eligibility(rest_client):
     assert response.status_code == status.HTTP_201_CREATED
     result = response.data
     assert result["is_eligible"] is True
+
+    # make sure it works internally without using the API
+    transaction = transaction_models.Transaction.objects.create(
+        country=general_models.Country.objects.get(code="GB"),
+        currency=general_models.Currency.objects.get(code="GBP"),
+        program=program3,
+        bank=bank3,
+    )
+    assert transaction.is_eligible is True
+
+    transaction2 = transaction_models.Transaction.objects.create(
+        country=general_models.Country.objects.get(code="GB"),
+        currency=general_models.Currency.objects.get(code="EUR"),
+        program=program3,
+        bank=bank3,
+    )
+    assert transaction2.is_eligible is False
+
+    # updates work as well
+    transaction2.currency = general_models.Currency.objects.get(code="GBP")
+    transaction2.save()
+    assert transaction2.is_eligible is True
+
+    # test bank signal updating transactions
+    bank3.countries.set([
+        general_models.Country.objects.get(code="ES"),
+    ])
+    bank3.save()
+    transaction.refresh_from_db()
+    transaction2.refresh_from_db()
+    assert transaction.is_eligible is False
+    assert transaction2.is_eligible is False

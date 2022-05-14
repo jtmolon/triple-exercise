@@ -14,4 +14,3 @@ class Transaction(models.Model):
     program = models.ForeignKey(program_models.Program, on_delete=models.SET_NULL, null=True)
     bank = models.ForeignKey(bank_models.Bank, on_delete=models.SET_NULL, null=True)
     is_eligible = models.BooleanField(default=True)
-
